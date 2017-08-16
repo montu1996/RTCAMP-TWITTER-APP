@@ -3,12 +3,22 @@
     require "./lib/PHPExcel/PHPExcel.php";
     use Abraham\TwitterOAuth\TwitterOAuth;
 
-    define('CONSUMER_KEY','AiO4ZE5cmcgsYsZ92GKvZzjOl');
-    define('CONSUMER_SECRET','0thMZH91OENuzNRfL9rJ5Q5oyQCD3RfVdlNQwvkMA93oPTL78n');
-    define('OAUTH_CALLBACK','https://rtcamp.000webhostapp.com/callback.php');
+    define('CONSUMER_KEY', 'AiO4ZE5cmcgsYsZ92GKvZzjOl');
+    define('CONSUMER_SECRET', '0thMZH91OENuzNRfL9rJ5Q5oyQCD3RfVdlNQwvkMA93oPTL78n');
+    define('OAUTH_CALLBACK', 'https://rtcamp.000webhostapp.com/callback.php');
 
+    /**
+    * #This is Model Class which include all the functionality of the project.
+    * @category PHP
+    * @author "Mitesh Thakor"
+    *
+    */
     class Model {
 
+        /*
+        * Handle Twitter Connect
+        *
+        */
         public function twitter_connect() {
             if (!isset($_SESSION['access_token'])) {
                 $connection = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET);
@@ -23,6 +33,10 @@
             }
         }
 
+        /**
+        * Handle Callback Functionality
+        *
+        */
         public function callback(){
             $request_token = [];
             $request_token['oauth_token'] = $_REQUEST['oauth_token'];
@@ -33,24 +47,42 @@
             header('Location: ./home.php');
         }
 
+        /**
+        * To get connection from access_token
+        * @return Connection Object
+        */
         public function getConnection() {
             $access_token = $_SESSION['access_token'];
             $connection = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, $access_token['oauth_token'], $access_token['oauth_token_secret']);
             return $connection;
         }
 
+        /**
+        * To Fetch Current User Object
+        * @return user object of the currently login
+        */
         public function getUser() {
             $connection = $this->getConnection();
             $user = $connection->get("account/verify_credentials");
             return $user;
         }
 
+        /**
+        * To Fetch most recent 10 tweets of the users
+        * @param = @screen_name = its screen_name of the user
+        * @return 10 tweets of the user
+        */
         public function getUserTweets($screen_name) {
             $connection = $this->getConnection();
             $tweets = $connection->get("statuses/user_timeline",["count" => 10, "exclude_replies" => true,"include_rts"=>true,"screen_name" => $screen_name]);
             return $tweets;
         }
 
+        /**
+        * To Fetch all tweets of the users
+        * @param = @screen_name = its screen_name of the user
+        * @return all tweets of the user
+        */
         public function getUserAllTweets($screen_name) {
             $connection = $this->getConnection();
             $tweets = $connection->get("statuses/user_timeline",["count" => 200, "exclude_replies" => true,"include_rts"=>true,"screen_name" => $screen_name]);
@@ -78,6 +110,11 @@
             return $user_tweets;
         }
 
+        /**
+        * To Fetch all followers of the users
+        * @param = @screen_name = its screen_name of the user
+        * @return all followers of the user
+        */
         public function getFollowers($screen_name) {
             $connection = $this->getConnection();
             $friends = $connection->get("followers/list",["screen_name"=>$screen_name]);
@@ -93,6 +130,11 @@
             return $followers;
         }
 
+
+        /**
+        * To Fetch followers information
+        * @param = @id = its screen_name of the user
+        */
         public function getFollowerInfo($id) {
             $connection = $this->getConnection();
             $user = $connection->get("users/show",['screen_name'=>$id]);
@@ -109,6 +151,9 @@
             echo $json;
         }
 
+        /**
+        * To Fetch login user information
+        */
         public function getUserData() {
             $user = $this->getUser();
             $connection = $this->getConnection();
@@ -129,6 +174,9 @@
             echo $json;
         }
 
+        /**
+        * Fetch loginuser tweets and download all tweets ub CSV
+        */
         public function downloadCSV() {
             $user = $this->getUser();
             $tweets[] = $this->getUserAllTweets($user->screen_name);
@@ -145,6 +193,9 @@
             }
         }
 
+        /**
+        * Fetch loginuser tweets and download all tweets ub XLS
+        */
         public function downloadXLS() {
             $user = $this->getUser();
             $tweets[] = $this->getUserAllTweets($user->screen_name);
@@ -166,6 +217,9 @@
             $file->save("php://output");
         }
 
+        /**
+        * Fetch loginuser tweets and download all tweets ub JSON
+        */
         public function downloadJSON() {
             $user = $this->getUser();
             $tweets[] = $this->getUserAllTweets($user->screen_name);
@@ -180,12 +234,19 @@
             print_r($arr);
         }
 
+        /**
+        * Fetch loginuser tweets and save in user google drive
+        */
         public function uploadGoogleDrive() {
             $user = $this->getUser();
             $tweets = $this->getUserAllTweets($user->screen_name);
             return $tweets;
         }
 
+        /**
+        * Handle logout functionality
+        *
+        */
         public function logout() {
             session_unset();
             session_destroy();
@@ -194,4 +255,3 @@
         }
 
     }
-?>

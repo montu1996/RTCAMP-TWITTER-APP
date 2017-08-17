@@ -1,4 +1,5 @@
 <?php
+    ini_set('max_execution_time', 0);
     session_start();
     require './model.php';
     $model = new Model();

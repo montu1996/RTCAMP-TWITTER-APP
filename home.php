@@ -58,7 +58,9 @@
 						<h1><img id="user_pic_mid" style="border-radius: 50%" /> &nbsp;&nbsp;&nbsp;<p id="name_user_mid"></p></h1>
 						<div id="myCarousel" class="carousel slide" data-ride="carousel">
 							<!-- Wrapper for slides -->
-							<div class="carousel-inner"></div>
+							<div class="carousel-inner">
+							<div class="item active" style="height:100px"> Loading </div>
+							</div>
 							<!-- Left and right controls -->
 							<a class="left carousel-control" href="#myCarousel" data-slide="prev">
 								<span class="glyphicon glyphicon-chevron-left"></span>

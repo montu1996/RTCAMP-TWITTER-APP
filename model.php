@@ -1,4 +1,5 @@
 <?php
+    ini_set('max_execution_time', 0);
     require "./lib/twitteroauth/autoload.php";
     require "./lib/PHPExcel/PHPExcel.php";
     use Abraham\TwitterOAuth\TwitterOAuth;
@@ -75,7 +76,12 @@
         public function getUserTweets($screen_name) {
             $connection = $this->getConnection();
             $tweets = $connection->get("statuses/user_timeline",["count" => 10, "exclude_replies" => true,"include_rts"=>true,"screen_name" => $screen_name]);
-            return $tweets;
+            foreach( $tweets as $val ) {
+                $t[] = array(
+                    'text' => $val->text
+                );
+            }
+            return $t;
         }
 
         /**
@@ -127,7 +133,16 @@
                 $nextCursor = $friends->next_cursor;
                 $page+=1;
             }
-            return $followers;
+            foreach( $followers as $val ) {
+                foreach( $val->users as $user ) {
+                    $f[] = array(
+                        'name' => $user->name,
+                        'screen_name' => $user->screen_name,
+                        'propic' => $user->profile_image_url_https
+                    );
+                }
+            }
+            return $f;
         }
 
 
@@ -159,8 +174,7 @@
             $connection = $this->getConnection();
             $tweets = $this->getUserTweets($user->screen_name);
             $screen_name = $user->screen_name;
-            $followers[] = $this->getFollowers($screen_name);
-            $filename = $user->id.'.json';
+            $followers = $this->getFollowers($screen_name);
             $json = json_encode($followers[0]);
             $res = array(
                 'id' => $user->id,
@@ -168,7 +182,7 @@
                 'screen_name' => $user->screen_name,
                 'propic' => $user->profile_image_url_https,
                 'tweets' => $tweets,
-                'followers' => $followers[0]
+                'followers' => $followers
             );
             $json = json_encode($res);
             echo $json;

@@ -14,7 +14,7 @@
     <body>
     	<nav class="navbar navbar-dark bg-primary">
 		    <div class="navbar-header">
-		      <a class="navbar-brand"><img src="./images/twitterlogo.png" style="height: 48px;width: 250px" /></a>
+		      <a class="navbar-brand"><img src="./images/twitterlogo.png" style="height: 48px;width:48px" /></a>
 		    </div>
 		    <ul class="nav navbar-nav" style="float: right">
 		    	<li class="dropdown">
@@ -59,7 +59,7 @@
 						<div id="myCarousel" class="carousel slide" data-ride="carousel">
 							<!-- Wrapper for slides -->
 							<div class="carousel-inner">
-							<div class="item active" style="height:100px"> Loading </div>
+								<div class="item active" style="height:100px"> Loading </div>
 							</div>
 							<!-- Left and right controls -->
 							<a class="left carousel-control" href="#myCarousel" data-slide="prev">

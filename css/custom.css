@@ -2,20 +2,30 @@ a:hover {
     text-decoration: none;
     cursor: pointer;
 }
-  a { 
-       text-decoration: none;
-       color: black;
-       cursor: pointer;
- }
- #hr_line {
-     border-bottom: solid black 1px;
- }
- .follower {
-     margin-top: 10px;
- }
- #myCarousel {
-     height: 150px;
- }
- .left {
-     border-right: 1px grey;
- }
+
+a {
+    text-decoration: none;
+    color: black;
+    cursor: pointer;
+}
+
+#hr_line {
+    border-bottom: solid black 1px;
+}
+
+.follower {
+    margin-top: 10px;
+}
+
+#myCarousel {
+    height: 150px;
+}
+
+.left {
+    border-right: 1px gray;
+}
+
+.follower:hover {
+    background-color: #ADD8E6;
+    cursor: pointer;
+}

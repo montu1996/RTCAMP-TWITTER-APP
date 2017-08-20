@@ -1,5 +1,4 @@
 <?php
-    ini_set('max_execution_time', 0);
     require "./lib/twitteroauth/autoload.php";
     require "./lib/PHPExcel/PHPExcel.php";
     use Abraham\TwitterOAuth\TwitterOAuth;
@@ -62,8 +61,7 @@
         * To Fetch Current User Object
         * @return user object of the currently login
         */
-        public function getUser() {
-            $connection = $this->getConnection();
+        public function getUser($connection) {
             $user = $connection->get("account/verify_credentials");
             return $user;
         }
@@ -75,12 +73,16 @@
         */
         public function getUserTweets($screen_name) {
             $connection = $this->getConnection();
-            $tweets = $connection->get("statuses/user_timeline",["count" => 10, "exclude_replies" => true,"include_rts"=>true,"screen_name" => $screen_name]);
+            $tweets = $connection->get("statuses/user_timeline",["count" => 10, "exclude_replies" => true,"screen_name" => $screen_name]);
             foreach( $tweets as $val ) {
                 $t[] = array(
                     'text' => $val->text
                 );
             }
+            if( count($tweets) == 0 )
+                $t[] = array(
+                    'text' => 'No Tweets Found'
+                );
             return $t;
         }
 
@@ -97,13 +99,11 @@
             for ($count = 200; $count < 3200; $count += 200) { 
                 $max = count($totalTweets[$page]) - 1;
                 $tweets = $connection->get('statuses/user_timeline', ["count" => 200, "exclude_replies" => true,"include_rts"=>true,"screen_name" => $screen_name, 'max_id' => $totalTweets[$page][$max]->id_str]);
-                $max1 = count($totalTweets[$page]) - 1;
-                if($max == $max1) {
+                if( count($tweets) == 0 ) {
                     break;
                 }
                 $totalTweets[] = $tweets;
                 $page += 1;
-
             }
             $start = 1;
             $index = 0;
@@ -123,28 +123,30 @@
         */
         public function getFollowers($screen_name) {
             $connection = $this->getConnection();
-            $friends = $connection->get("followers/list",["screen_name"=>$screen_name]);
-            $nextCursor = $friends->next_cursor;
-            $page = 1;
-            $followers[] = $friends;
-            while( $nextCursor != 0 ) {
-                $friends = $connection->get("followers/list", ["screen_name"=>$screen_name,"next_cursor"=>$nextCursor]);
-                $followers[$page] = $friends;
-                $nextCursor = $friends->next_cursor;
-                $page+=1;
+            $next = -1;
+            $max = 0;
+            while( $next != 0 ) {
+                $friends = $connection->get("followers/list", ["screen_name"=>$screen_name,"next_cursor"=>$next]);
+                $followers[] = $friends;
+                $next = $friends->next_cursor;
+                if($max==0)
+                    break;
+                $max++;
             }
             foreach( $followers as $val ) {
-                foreach( $val->users as $user ) {
+                foreach( $val->users as $usr ) {
                     $f[] = array(
-                        'name' => $user->name,
-                        'screen_name' => $user->screen_name,
-                        'propic' => $user->profile_image_url_https
+                        'name' => $usr->name,
+                        'screen_name' => $usr->screen_name,
+                        'propic' => $usr->profile_image_url_https
                     );
                 }
             }
-            return $f;
+            $json = array(
+                'followers' => $f
+            );
+            echo json_encode($json);
         }
-
 
         /**
         * To Fetch followers information
@@ -170,19 +172,16 @@
         * To Fetch login user information
         */
         public function getUserData() {
-            $user = $this->getUser();
             $connection = $this->getConnection();
+            $user = $this->getUser($connection);
             $tweets = $this->getUserTweets($user->screen_name);
             $screen_name = $user->screen_name;
-            $followers = $this->getFollowers($screen_name);
-            $json = json_encode($followers[0]);
             $res = array(
                 'id' => $user->id,
                 'name' => $user->name,
                 'screen_name' => $user->screen_name,
                 'propic' => $user->profile_image_url_https,
                 'tweets' => $tweets,
-                'followers' => $followers
             );
             $json = json_encode($res);
             echo $json;
@@ -192,7 +191,8 @@
         * Fetch loginuser tweets and download all tweets ub CSV
         */
         public function downloadCSV() {
-            $user = $this->getUser();
+            $connection = $this->getConnection();
+            $user = $this->getUser($connection);
             $tweets[] = $this->getUserAllTweets($user->screen_name);
             header("Content-type: text/csv");
             header("Content-Disposition: attachment; filename=tweets.csv");
@@ -211,7 +211,8 @@
         * Fetch loginuser tweets and download all tweets ub XLS
         */
         public function downloadXLS() {
-            $user = $this->getUser();
+            $connection = $this->getConnection();
+            $user = $this->getUser($connection);
             $tweets[] = $this->getUserAllTweets($user->screen_name);
             $excel = new PHPExcel();
             $count = count($tweets);
@@ -235,7 +236,8 @@
         * Fetch loginuser tweets and download all tweets ub JSON
         */
         public function downloadJSON() {
-            $user = $this->getUser();
+            $connection = $this->getConnection();
+            $user = $this->getUser($connection);
             $tweets[] = $this->getUserAllTweets($user->screen_name);
             header('Content-disposition: attachment; filename=tweets.json');
             header('Content-type: application/json');
@@ -252,7 +254,8 @@
         * Fetch loginuser tweets and save in user google drive
         */
         public function uploadGoogleDrive() {
-            $user = $this->getUser();
+            $connection = $this->getConnection();
+            $user = $this->getUser($connection);
             $tweets = $this->getUserAllTweets($user->screen_name);
             return $tweets;
         }
@@ -269,3 +272,4 @@
         }
 
     }
+?>

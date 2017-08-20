@@ -1,5 +1,6 @@
 $(document).ready(function() {
     var followers_info = "";
+    var screen_name = "";
 
     function fetchUserInfo() {
         $.ajax({
@@ -7,7 +8,6 @@ $(document).ready(function() {
             dataType: 'json',
             type: 'GET',
             success: function(results) {
-                alert(results.followers[0].name);
                 $("#name_user").html(results.name);
                 $("#user_pic").attr('src', results.propic);
                 $("#name_user_left").html(results.name);
@@ -18,6 +18,7 @@ $(document).ready(function() {
                 var list = '';
                 var length = results.tweets.length;
                 length = (length >= 10) ? 10 : length;
+                screen_name = results.screen_name;
                 for (i = 0; i < length; i++) {
                     if (i == 0) {
                         list += '<div class="item active" style="height:100px"><br /><b>' + results.tweets[i].text + '</b></div>';
@@ -27,11 +28,22 @@ $(document).ready(function() {
 
                 }
                 $('.carousel-inner').html(list);
-                if (followers_info == "")
-                    followers_info = results.followers;
-                length = results.followers.length;
+                $('#myCarousel').carousel();
+                fetchFollowersInfo();
+            }
+        });
+    }
+
+    function fetchFollowersInfo() {
+        $.ajax({
+            url: './controller.php?fetchFollowers=' + screen_name,
+            dataType: 'json',
+            type: 'GET',
+            success: function(results) {
+                var list = "";
+                var length = results.followers.length;
+                followers_info = results.followers;
                 length = (length >= 10) ? 10 : length;
-                list = "";
                 for (i = 0; i < length; i++) {
                     var id = results.followers[i].screen_name;
                     var anchor = "<a class='followers-name' data-value='" + id + "' >&nbsp;&nbsp;&nbsp;" + results.followers[i].name + "</a>";
@@ -41,7 +53,7 @@ $(document).ready(function() {
             }
         });
     }
-    fetchUserInfo();
+
     $(document.body).on('click', '.followers-name', function() {
         var id = $(this).attr('data-value');
         $.ajax({
@@ -49,6 +61,7 @@ $(document).ready(function() {
             dataType: 'json',
             type: 'GET',
             success: function(results) {
+                $('.carousel-inner').html("");
                 var name = results.name;
                 $("#name_user_mid").text(name);
                 $("#user_pic_mid").attr('src', results.propic);
@@ -64,6 +77,7 @@ $(document).ready(function() {
                 }
                 list = (length == 0) ? '<br />' : list;
                 $('.carousel-inner').html(list);
+                $('#myCarousel').carousel();
             }
         });
     });
@@ -84,4 +98,5 @@ $(document).ready(function() {
         }
         $('#search').html(list);
     });
+    fetchUserInfo();
 });

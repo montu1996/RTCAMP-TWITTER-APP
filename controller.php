@@ -1,5 +1,4 @@
 <?php
-    ini_set('max_execution_time', 0);
     session_start();
     require './model.php';
     $model = new Model();
@@ -18,6 +17,11 @@
     if(isset($_GET['followers']) ) {
         $id = $_GET['usr_id'];
         $model->getFollowerInfo($id);
+    }
+
+    if( isset($_GET['fetchFollowers']) ) {
+        $screen_name = $_GET['fetchFollowers'];
+        $model->getFollowers($screen_name);
     }
 
     if( isset($_GET['userdata']) && $_GET['userdata']==true ) {

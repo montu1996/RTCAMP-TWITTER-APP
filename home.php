@@ -72,6 +72,26 @@
 							</a>
 						</div>
 					</center>
+
+					<br />
+					<br />
+					
+					<div id="col-md-12">
+						<center><h1> Search And Download public User's Tweets </h1></center>
+					</div>
+
+					<br />
+
+					<div class="col-md-4"></div>
+					<div class="col-md-4">
+						<form method="post" action="./controller.php">
+							<input type="text" name="key" class="form-control" placeholder="Search Public User" />
+							<br />
+							<input type="submit" name="search_public_user" class="btn btn-primary form-control"  />
+						</form>
+					</div>
+					<div class="col-md-4"></div>
+
 				</div> 
 			</div>
 		</div>

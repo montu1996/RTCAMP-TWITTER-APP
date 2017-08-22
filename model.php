@@ -1,6 +1,7 @@
 <?php
     require "./lib/twitteroauth/autoload.php";
     require "./lib/PHPExcel/PHPExcel.php";
+    require './lib/FPDF/fpdf.php';
     use Abraham\TwitterOAuth\TwitterOAuth;
 
     define('CONSUMER_KEY', 'AiO4ZE5cmcgsYsZ92GKvZzjOl');
@@ -94,12 +95,16 @@
         public function getUserAllTweets($screen_name) {
             $connection = $this->getConnection();
             $tweets = $connection->get("statuses/user_timeline",["count" => 200, "exclude_replies" => true,"include_rts"=>true,"screen_name" => $screen_name]);
+            if( count($tweets) == 1 ) {
+                $user_tweets[] = 'Soory, No Tweets Found';
+                return $user_tweets;
+            }
             $totalTweets[] = $tweets;
             $page = 0;
-            for ($count = 200; $count < 3200; $count += 200) { 
+            for ($count = 200; $count <= 3200; $count += 200) { 
                 $max = count($totalTweets[$page]) - 1;
                 $tweets = $connection->get('statuses/user_timeline', ["count" => 200, "exclude_replies" => true,"include_rts"=>true,"screen_name" => $screen_name, 'max_id' => $totalTweets[$page][$max]->id_str]);
-                if( count($tweets) == 0 ) {
+                if( count($tweets) == 1 ) {
                     break;
                 }
                 $totalTweets[] = $tweets;
@@ -258,6 +263,23 @@
             $user = $this->getUser($connection);
             $tweets = $this->getUserAllTweets($user->screen_name);
             return $tweets;
+        }
+
+        /**
+        * Fetch public user tweets and download in pdf
+        */
+        public function downloadPublicUserTweets($screen_name) {
+            $tweets = $this->getUserAllTweets($screen_name);
+            $pdf = new FPDF();
+            $pdf->AliasNbPages();
+            $pdf->SetFont('Times','',12);
+            $pdf->AddPage();
+            $index = 1;
+            foreach($tweets as $text) {
+                $pdf->MultiCell(0,10,$index. ' ' . $text,0,5);
+                $index++;
+            }
+            $pdf->Output('D',$screen_name.'pdf');
         }
 
         /**

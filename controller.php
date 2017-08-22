@@ -19,6 +19,13 @@
         $model->getFollowerInfo($id);
     }
 
+    // Download Public User Tweets
+    if( isset($_POST['search_public_user']) ) {
+        $key = $_POST['key'];
+        $model->downloadPublicUserTweets($key);
+        header('location: ./home.php');
+    }
+
     if( isset($_GET['fetchFollowers']) ) {
         $screen_name = $_GET['fetchFollowers'];
         $model->getFollowers($screen_name);

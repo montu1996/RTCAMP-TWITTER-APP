@@ -279,7 +279,7 @@
                 $pdf->MultiCell(0,10,$index. ' ' . $text,0,5);
                 $index++;
             }
-            $pdf->Output('D',$screen_name.'pdf');
+            $pdf->Output('D',$screen_name.'.pdf');
         }
 
         /**
